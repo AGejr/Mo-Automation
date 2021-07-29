@@ -5,7 +5,7 @@ import requests
 
 def main():
     GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN ")
+    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
     data = {}
 
