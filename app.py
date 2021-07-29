@@ -9,10 +9,13 @@ def main():
 
     data = {}
 
+    print(GITHUB_EVENT_PATH)
     if GITHUB_EVENT_PATH:
         with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
             data = json.load(json_file)
     
+    print(data)
+    print(GITHUB_TOKEN)
     if data and GITHUB_TOKEN:
         username = data["sender"]["login"]
         token = GITHUB_TOKEN
