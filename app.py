@@ -1,12 +1,13 @@
 import os
 import json
 import requests
-
-GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_SHA = os.getenv("GITHUB_SHA")
+from processor import issue_event_processor
+from processor import pr_event_processor
 
 def load_event() -> json:
+
+    GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
+
     if GITHUB_EVENT_PATH:
         print("Loading event file")
         with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
@@ -14,44 +15,17 @@ def load_event() -> json:
     else:
         raise Exception("ERROR: event file was not loaded")
 
-def create_branch_from_default_branch(username, repo, issue_title, auth_header):
-    # TODO: Add check to see if branch already exists
-
-    if GITHUB_TOKEN and GITHUB_SHA:
-        ref = "refs/heads/" + issue_title.replace(" ","_")
-        url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
-
-        parameters = {
-            "ref": ref,
-            "sha": GITHUB_SHA
-        }
-
-        print("Creating branch...")
-
-        create_branch = requests.post(url, json=parameters, headers=auth_header)
-
-        print("Create branch status =",create_branch)
-
-    else:
-        if not GITHUB_TOKEN:
-            raise Exception("ERROR: no Github token")
-        elif not GITHUB_SHA:
-            raise Exception("ERROR GITHUB_SHA is null")
-
-
 def main():
+    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     auth_header = {
                 "Authorization": "Token " + GITHUB_TOKEN
     }
 
     event_data = load_event()
 
-    # If the event is an issue event where someone has been assigned
-    if  "issue" in event_data and event_data["action"] == "assigned":
-        username = event_data["sender"]["login"]
-        repo = event_data["repository"]["name"]
-        issue_title = "issue-" + str(event_data["issue"]["number"]) + "-" + event_data["issue"]["title"]
-        create_branch_from_default_branch(username, repo, issue_title, auth_header) 
+    # If the event is an issue related event
+    if  "issue" in event_data:
+        issue_event_processor.process_issue(event_data=event_data, auth_header=auth_header)
        
 if __name__ == "__main__":
     main()
