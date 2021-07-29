@@ -7,10 +7,10 @@ def create_branch_from_default_branch(username, repo, issue_number, issue_title,
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     GITHUB_SHA = os.getenv("GITHUB_SHA")
 
-    branch_name = "issue-" + str(issue_number) + "-" + issue_title
+    branch_name = "issue-" + str(issue_number) + "-" + issue_title.replace(" ","_")
 
     if GITHUB_TOKEN and GITHUB_SHA:
-        ref = "refs/heads/" + issue_title.replace(" ","_")
+        ref = "refs/heads/" + branch_name
         url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
         parameters = {
             "ref": ref,
@@ -34,6 +34,7 @@ def create_branch_from_default_branch(username, repo, issue_number, issue_title,
         "issue_number": issue_number,
         "body": comment_body
     }
+    url = "https://api.github.com/repos/" + username + "/" + repo + "/issues/" + str(issue_number) + "/comments"
     print("Creating comment on issue...")
     create_comment = requests.post(url=url,json=parameters,headers=auth_header)
     print("Create comment status = ", create_comment)
