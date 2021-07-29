@@ -25,17 +25,17 @@ def main():
         repo = data["repository"]["name"]
         ref = "refs/heads/" + data["issue"]["title"].replace(" ","_")
 
-        url = "https://api.github.com/" + "repos/" + username + "/" + repo + "git/refs"
+        url = "https://api.github.com/" + "repos/" + username + "/" + repo
 
-        login = requests.get("https://api.github.com/search/repositories?q=github+api", auth=(username,token))
-        print("Login status =", login)
+        #login = requests.get("https://api.github.com/search/repositories?q=github+api", auth=(username,token))
+        #print("Login status =", login)
 
         if GITHUB_SHA:
             headers = {
                 "ref": ref,
                 "sha": GITHUB_SHA
             }
-            create_branch = requests.post(url, headers=headers)
+            create_branch = requests.post(url, json=headers)
             print("Create branch status =",create_branch)
 
 if __name__ == "__main__":
