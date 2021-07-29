@@ -48,7 +48,7 @@ def main():
     if  "issue" in event_data and event_data["action"] == "assigned":
         username = event_data["sender"]["login"]
         repo = event_data["repository"]["name"]
-        issue_title = event_data["issue"]["title"]
+        issue_title = "issue-" + event_data["issue"]["number"] + "-" + event_data["issue"]["title"]
         create_branch_from_default_branch(username, repo, issue_title, auth_header) 
        
 if __name__ == "__main__":
