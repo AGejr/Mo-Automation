@@ -29,7 +29,7 @@ def create_branch_from_default_branch(username, repo, issue_number, issue_title,
         elif not GITHUB_SHA:
             raise Exception("ERROR GITHUB_SHA is null")
 
-    comment_body = "Branch [", branch_name,"](https://github.com/",username,"/",repo,"/tree/",branch_name,") created!"
+    comment_body = "Branch [" + branch_name + "](https://github.com/" + username + "/" + repo + "/tree/" + branch_name + ") created!"
     parameters = {
         "issue_number": issue_number,
         "body": comment_body
