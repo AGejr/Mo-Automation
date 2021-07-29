@@ -13,6 +13,9 @@ def get_default_branch(url, default_branch):
 def main():
     GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+    GITHUB_SHA = os.getenv("GITHUB_SHA")
+
+    print("sha = ", GITHUB_SHA)
 
     data = {}
 
@@ -36,14 +39,16 @@ def main():
 
         default_branch = get_default_branch(url, data["repository"]["default_branch"])
         print(default_branch)
-        default_branch_sha = default_branch["object"]["sha"]
 
-        headers = {
-            "ref": ref,
-            "sha": default_branch_sha
-        }
-        create_branch = requests.post(url, headers=headers)
-        print(create_branch)
+        if default_branch:
+            default_branch_sha = default_branch["object"]["sha"]
+
+            headers = {
+                "ref": ref,
+                "sha": default_branch_sha
+            }
+            create_branch = requests.post(url, headers=headers)
+            print(create_branch)
 
 if __name__ == "__main__":
     main()
