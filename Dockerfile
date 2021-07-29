@@ -8,5 +8,4 @@ RUN pip3 install flask
 
 COPY app.py /app/app.py
 
-CMD ["ls -alF"]
 CMD [ "python3", "/app/app.py"]
