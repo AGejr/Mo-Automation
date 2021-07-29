@@ -7,11 +7,11 @@ def create_app() -> Flask:
 
     GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
 
-    print(GITHUB_EVENT_PATH)
-    with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
-        data = json.load(json_file)
-
-    print(data)
+    if GITHUB_EVENT_PATH:
+        print(GITHUB_EVENT_PATH)
+        with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
+            data = json.load(json_file)
+        print(data)
 
     return app
 
