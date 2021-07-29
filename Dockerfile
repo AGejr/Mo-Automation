@@ -1,10 +1,12 @@
 FROM python:3.8-slim-buster
 
-WORKDIR /app
+WORKDIR app/
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+COPY requirements.txt /app
+#RUN pip3 install -r /app/requirements.txt
+RUN pip3 install flask 
+# Networking error ^
 
-COPY . .
+COPY app.py /app
 
-CMD ["python", "/app.py" ]
+CMD [ "python3", "-m" , "flask", "run"]
