@@ -31,13 +31,15 @@ def main():
         #print("Login status =", login)
 
         if GITHUB_SHA:
-            headers = {
+            not_headers = {
                 "ref": ref,
                 "sha": GITHUB_SHA
             }
+            headers = {
+                "Authorization": "Token " + GITHUB_TOKEN}
             print("ref = ",ref)
             print("url = ",url)
-            create_branch = requests.post(url, json=headers)
+            create_branch = requests.post(url, json=not_headers, headers=headers)
             print("Create branch status =",create_branch)
 
 if __name__ == "__main__":
