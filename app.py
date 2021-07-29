@@ -25,7 +25,7 @@ def main():
         repo = data["repository"]["name"]
         ref = "refs/heads/" + data["issue"]["title"].replace(" ","_")
 
-        url = "https://api.github.com/" + "repos/" + username + "/" + repo
+        url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
 
         #login = requests.get("https://api.github.com/search/repositories?q=github+api", auth=(username,token))
         #print("Login status =", login)
@@ -35,6 +35,8 @@ def main():
                 "ref": ref,
                 "sha": GITHUB_SHA
             }
+            print("ref = ",ref)
+            print("url = ",url)
             create_branch = requests.post(url, json=headers)
             print("Create branch status =",create_branch)
 
