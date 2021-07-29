@@ -15,6 +15,8 @@ def load_event() -> json:
         raise Exception("ERROR: event file was not loaded")
 
 def create_branch_from_default_branch(username, repo, issue_title, auth_header):
+    # TODO: Add check to see if branch already exists
+
     if GITHUB_TOKEN and GITHUB_SHA:
         ref = "refs/heads/" + issue_title.replace(" ","_")
         url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
