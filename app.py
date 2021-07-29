@@ -1,69 +1,55 @@
 import os
 import json
 import requests
-#from flask import Flask
 
-def main():
-    GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    GITHUB_SHA = os.getenv("GITHUB_SHA")
+GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+GITHUB_SHA = os.getenv("GITHUB_SHA")
 
-    print("sha =", GITHUB_SHA)
-
-    data = {}
-
-    print("Event path =",GITHUB_EVENT_PATH)
+def load_event() -> json:
     if GITHUB_EVENT_PATH:
+        print("Loading event file")
         with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
-            data = json.load(json_file)
-    
-    print("Data =",data)
-    print("Token =",GITHUB_TOKEN)
-    if data and GITHUB_TOKEN:
-        username = data["sender"]["login"]
-        token = GITHUB_TOKEN
-        repo = data["repository"]["name"]
-        ref = "refs/heads/" + data["issue"]["title"].replace(" ","_")
+            return json.load(json_file)
+    else:
+        raise Exception("ERROR: event file was not loaded")
 
+def create_branch_from_default_branch(username, repo, issue_title, auth_header):
+    if GITHUB_TOKEN and GITHUB_SHA:
+        ref = "refs/heads/" + issue_title.replace(" ","_")
         url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
 
-        #login = requests.get("https://api.github.com/search/repositories?q=github+api", auth=(username,token))
-        #print("Login status =", login)
+        parameters = {
+            "ref": ref,
+            "sha": GITHUB_SHA
+        }
 
-        if GITHUB_SHA:
-            not_headers = {
-                "ref": ref,
-                "sha": GITHUB_SHA
-            }
-            headers = {
-                "Authorization": "Token " + GITHUB_TOKEN}
-            print("ref = ",ref)
-            print("url = ",url)
-            create_branch = requests.post(url, json=not_headers, headers=headers)
-            print("Create branch status =",create_branch)
+        print("Creating branch...")
 
+        create_branch = requests.post(url, json=parameters, headers=auth_header)
+
+        print("Create branch status =",create_branch)
+
+    else:
+        if not GITHUB_TOKEN:
+            raise Exception("ERROR: no Github token")
+        elif not GITHUB_SHA:
+            raise Exception("ERROR GITHUB_SHA is null")
+
+
+def main():
+    auth_header = {
+                "Authorization": "Token " + GITHUB_TOKEN
+    }
+
+    event_data = load_event()
+
+    # If the event is an issue event where someone has been assigned
+    if  "issue" in event_data and event_data["action"] == "assigned":
+        username = event_data["sender"]["login"]
+        repo = event_data["repository"]["name"]
+        issue_title = event_data["issue"]["title"]
+        create_branch_from_default_branch(username, repo, issue_title, auth_header) 
+       
 if __name__ == "__main__":
     main()
-
-"""
-def create_app() -> Flask:
-    app = Flask(__name__)
-
-    GITHUB_EVENT_PATH = os.getenv("GITHUB_EVENT_PATH")
-
-    if GITHUB_EVENT_PATH:
-        print(GITHUB_EVENT_PATH)
-        with open(str(GITHUB_EVENT_PATH), 'r') as json_file:
-            data = json.load(json_file)
-        print(data)
-
-    @app.route('/some-url')
-    def get_data():
-        return requests.get('http://example.com').content
-
-    return app
-
-if __name__ == "__main__":
-    app = create_app()
-    app.run()
-"""
