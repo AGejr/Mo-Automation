@@ -1,7 +1,7 @@
 import os
 import requests
 
-def create_branch_from_default_branch(username, repo, issue_number, issue_title, auth_header):
+def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header):
     # TODO: Add check to see if branch already exists
 
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
@@ -11,7 +11,7 @@ def create_branch_from_default_branch(username, repo, issue_number, issue_title,
 
     if GITHUB_TOKEN and GITHUB_SHA:
         ref = "refs/heads/" + branch_name
-        url = "https://api.github.com/" + "repos/" + username + "/" + repo + "/git/refs"
+        url = "https://api.github.com/" + "repos/" + repo_owner + "/" + repo + "/git/refs"
         parameters = {
             "ref": ref,
             "sha": GITHUB_SHA
@@ -29,12 +29,12 @@ def create_branch_from_default_branch(username, repo, issue_number, issue_title,
         elif not GITHUB_SHA:
             raise Exception("ERROR GITHUB_SHA is null")
 
-    comment_body = "Branch [" + branch_name + "](https://github.com/" + username + "/" + repo + "/tree/" + branch_name + ") created!"
+    comment_body = "Branch [" + branch_name + "](https://github.com/" + repo_owner + "/" + repo + "/tree/" + branch_name + ") created!"
     parameters = {
         "issue_number": issue_number,
         "body": comment_body
     }
-    url = "https://api.github.com/repos/" + username + "/" + repo + "/issues/" + str(issue_number) + "/comments"
+    url = "https://api.github.com/repos/" + repo_owner + "/" + repo + "/issues/" + str(issue_number) + "/comments"
     print("Creating comment on issue...")
     create_comment = requests.post(url=url,json=parameters,headers=auth_header)
     print("Create comment status = ", create_comment)
@@ -44,8 +44,10 @@ def process_issue(event_data, auth_header):
     # If the event is an issue event where someone has been assigned
     # Then create a new issue-named branch
     if event_data["action"] == "assigned":
-        username = event_data["sender"]["login"]
+        repo_owner = event_data["repository"]["owner"]["login"]
         repo = event_data["repository"]["name"]
         issue_number = event_data["issue"]["number"]
         issue_title = event_data["issue"]["title"]
-        create_branch_from_default_branch(username, repo, issue_number, issue_title, auth_header) 
+        create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header) 
+
+    
