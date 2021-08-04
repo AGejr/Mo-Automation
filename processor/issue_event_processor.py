@@ -1,6 +1,8 @@
 import requests
 import json
 import os
+
+from requests.models import Response
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
 
@@ -34,9 +36,9 @@ def create_branch_from_default_branch(issue_number, issue_title):
 # TODO: Test if the board has the appropriate columns
 def project_board_exists() -> bool:
     projects_url = get_projects_url()
-    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
+    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER")).json()
 
-    for project in repo_projects.json():
+    for project in repo_projects:
         if "name" in project and project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
     
@@ -48,15 +50,32 @@ def create_project_column(column_name, project_id):
     parameters = {
         "name": column_name
     }
-
     print("Creating column \"" + column_name + "\"...")
     response = requests.post(url=project_columns_url,json=parameters,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
     print(response.status_code, ":", response.reason)
 
+def get_project(project_name):
+    projects_url = get_projects_url()
+    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER")).json()
+
+    for project in repo_projects:
+        if "name" in project and project["name"] == project_name:
+            return project
+    return {}
+
+def get_project_column(project_id, column_name):
+    project_column_url = get_project_columns_url(project_id=project_id)
+    project_column = requests.get(url=project_column_url,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER")).json()
+
+    for column in project_column:
+        if "name" in column and column["name"] == column_name:
+            return column
+    return {}
+
 def initialize_project_board():
     projects_url = get_projects_url()
     parameters = {
-            "name": ENV_VAR.config("PROJECT_BOARD_NAME"),
+            "name": ENV_VAR.config("PROJECT_BOARD_NAME")
     }
 
     print("Initializing automated project board...")
@@ -72,12 +91,22 @@ def initialize_project_board():
         create_project_column("In Review", project_id)
         create_project_column("Done", project_id)
 
-def add_issue_to_board_backlog():
-    print("*Should create branch*")    
+def add_issue_to_board_backlog(issue_id):
+    project_id = int(get_project(ENV_VAR.config("PROJECT_BOARD_NAME"))["id"])
+    project_column_id = int(get_project_column(project_id=project_id, column_name="Backlog")["id"])
+    project_cards_url = get_project_cards_url(column_id=project_column_id)
+    parameters = {
+        "content_id":issue_id,
+        "content_type":"Issue"
+    }
+    print("Adding issue to backlog...")
+    response = requests.post(url=project_cards_url,json=parameters,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
+    print(response.status_code, ":", response.reason)
 
 def process_issue(event_data):
     issue_number = event_data["issue"]["number"]
     issue_title = event_data["issue"]["title"]
+    issue_id = event_data["issue"]["id"]
 
     # If the event is an issue event where someone has been assigned
     # Then create a new issue-named branch
@@ -87,10 +116,7 @@ def process_issue(event_data):
     # If the event is an issue that has just been created, add it to the backlog in the project board
     # And if there is no project board, initialize it 
     if "state" in event_data["issue"] and event_data["issue"]["state"] == "open":
-        board_exists = project_board_exists()
-        if board_exists == False:
+        if not get_project(ENV_VAR.config("PROJECT_BOARD_NAME")):
             initialize_project_board()
         
-        add_issue_to_board_backlog()
-
-    
+        add_issue_to_board_backlog(issue_id=issue_id)

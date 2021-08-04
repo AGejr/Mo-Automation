@@ -11,3 +11,6 @@ def get_projects_url():
 
 def get_project_columns_url(project_id):
     return "https://api.github.com/projects/" + str(project_id) + "/columns"
+
+def get_project_cards_url(column_id):
+    return "https://api.github.com/projects/columns/" + str(column_id) + "/cards"
