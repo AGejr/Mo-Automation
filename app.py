@@ -1,5 +1,5 @@
 import json
-from .processor import issue_event_processor
+from processor import issue_event_processor
 from vars.env import ENV_VAR
 
 # TODO: Make a file with enviroment variables
