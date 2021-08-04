@@ -34,11 +34,7 @@ def create_branch_from_default_branch(issue_number, issue_title):
 # TODO: Test if the board has the appropriate columns
 def project_board_exists() -> bool:
     projects_url = get_projects_url()
-    header = {
-        "Accept":"application/vnd.github.inertia-preview+json",
-        "Authorization":"Token " + ENV_VAR.config("GITHUB_TOKEN")
-    }
-    repo_projects = requests.get(url=projects_url,headers=header)
+    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
 
     for project in repo_projects.json():
         if "name" in project and project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
@@ -54,7 +50,7 @@ def create_project_column(column_name, project_id):
     }
 
     print("Creating column \"" + column_name + "\"...")
-    response = requests.post(url=project_columns_url,json=parameters,headers=ENV_VAR.config("AUTH_HEADER"))
+    response = requests.post(url=project_columns_url,json=parameters,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
     print(response.status_code, ":", response.reason)
 
 def initialize_project_board():
@@ -62,13 +58,9 @@ def initialize_project_board():
     parameters = {
             "name": ENV_VAR.config("PROJECT_BOARD_NAME"),
     }
-    header = {
-        "Accept":"application/vnd.github.inertia-preview+json",
-        "Authorization":"Token " + ENV_VAR.config("GITHUB_TOKEN")
-    }
 
     print("Initializing automated project board...")
-    response = requests.post(url=projects_url, json=parameters, headers=header)
+    response = requests.post(url=projects_url, json=parameters, headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))
     print(response.status_code, ":", response.reason)
 
     if response.status_code == 201:
