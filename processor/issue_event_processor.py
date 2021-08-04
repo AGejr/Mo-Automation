@@ -35,8 +35,7 @@ def project_board_exists() -> bool:
     projects_api_url = get_projects_url()
     repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
 
-    response_json = json.dumps(repo_projects)
-    print("Response: ", response_json)
+    print("Response: ", repo_projects.json())
 
     for project in repo_projects:
         for something in project:
