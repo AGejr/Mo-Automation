@@ -5,6 +5,7 @@ WORKDIR app/
 COPY requirements.txt /app
 COPY app.py /app/app.py
 COPY processor /app/processor
+COPY vars /app/vars
 
 RUN pip3 install -r /app/requirements.txt
 

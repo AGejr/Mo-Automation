@@ -1,8 +1,6 @@
-import os
 import requests
-from requests.api import request
-from ..vars.env import ENV_VAR
-from ..vars.github_api_url_getter import *
+from vars.env import ENV_VAR
+from vars.github_api_url_getter import *
 
 def create_issue_comment(comment_body, issue_number):
     parameters = {
