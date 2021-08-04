@@ -40,9 +40,6 @@ def project_board_exists() -> bool:
     }
     repo_projects = requests.get(url=projects_url,headers=header)
 
-    print(repo_projects.status_code, ":", repo_projects.reason)
-    print("Response: ", repo_projects.json())
-
     for project in repo_projects.json():
         if "name" in project and project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
@@ -65,9 +62,13 @@ def initialize_project_board():
     parameters = {
             "name": ENV_VAR.config("PROJECT_BOARD_NAME"),
     }
+    header = {
+        "Accept":"application/vnd.github.inertia-preview+json",
+        "Authorization":"Token " + ENV_VAR.config("GITHUB_TOKEN")
+    }
 
     print("Initializing automated project board...")
-    response = requests.post(url=projects_url, json=parameters, headers=ENV_VAR.config("AUTH_HEADER"))
+    response = requests.post(url=projects_url, json=parameters, headers=header)
     print(response.status_code, ":", response.reason)
 
     if response.status_code == 201:
