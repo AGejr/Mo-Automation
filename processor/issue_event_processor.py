@@ -119,9 +119,14 @@ def move_project_card_column(from_column_name, to_column_name, issue_number):
     to_project_column_id = int(get_project_column(project_id=project_id, column_name=to_column_name)["id"])
     project_card_id = int(get_project_card(column_id=from_project_column_id,issue_number=issue_number)["id"])
 
+    print("project_id",project_id)
+    print("from_project_column_id",from_project_column_id)
+    print("to_project_column_id",to_project_column_id)
+    print("project_card_id",project_card_id)
     project_card_moves_url = get_project_card_moves_url(project_card_id)
     parameters = {
-        "column_id":to_project_column_id
+        "column_id":to_project_column_id,
+        "position":"top"
     }
     print("Moving issue from", from_column_name, "to", to_column_name,"...")
     response = requests.post(url=project_card_moves_url,json=parameters,headers=ENV_VAR.config("ALTERNATE_AUTH_HEADER"))

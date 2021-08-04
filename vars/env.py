@@ -11,7 +11,6 @@ class ENV_VAR:
             "Accept":"application/vnd.github.inertia-preview+json",
             "Authorization":"Token " + os.getenv("GITHUB_TOKEN")
         },
-        
         "GITHUB_SHA" : os.getenv("GITHUB_SHA"),
         "PROJECT_BOARD_NAME" : os.getenv("PROJECT_BOARD_NAME", "Automated Board"),
         "GITHUB_REPOSITORY_OWNER" : os.getenv("GITHUB_REPOSITORY").split("/")[0],
