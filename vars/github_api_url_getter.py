@@ -10,4 +10,4 @@ def get_projects_url():
     return "https://api.github.com/repos/" + ENV_VAR.config("GITHUB_REPOSITORY_OWNER") + "/" + ENV_VAR.config("GITHUB_REPOSITORY_TITLE") + "/projects"
 
 def get_project_columns_url(project_id):
-    return "https://api.github.com/projects/" + project_id + "/columns"
+    return "https://api.github.com/projects/" + str(project_id) + "/columns"
