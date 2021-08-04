@@ -1,4 +1,5 @@
 import requests
+import json
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
 
@@ -33,6 +34,9 @@ def create_branch_from_default_branch(issue_number, issue_title):
 def project_board_exists() -> bool:
     projects_api_url = get_projects_url()
     repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
+
+    response_json = json.dump(repo_projects)
+    print("Response: ", response_json)
 
     for project in repo_projects:
         for something in project:
