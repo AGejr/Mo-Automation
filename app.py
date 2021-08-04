@@ -6,14 +6,11 @@ from vars.env import ENV_VAR
 # TODO: Make a predefined list API URLs 
 
 def load_event() -> json:
-    if ENV_VAR.config["GITHUB_EVENT_PATH"]:
-        print("Loading event file")
-        with open(str(ENV_VAR.config["GITHUB_EVENT_PATH"]), 'r') as json_file:
-            event_data = json.load(json_file)
-            print("Event data = ", event_data)
-            return event_data
-    else:
-        raise Exception("ERROR: event file was not loaded")
+    print("Loading event file")
+    with open(str(ENV_VAR.config["GITHUB_EVENT_PATH"]), 'r') as json_file:
+        event_data = json.load(json_file)
+        print("Event data = ", event_data)
+        return event_data
 
 def main():
     event_data = load_event()
