@@ -6,6 +6,12 @@ from requests.models import Response
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
 
+# TODO: Cleanup! move ever function, except for process_issue, into appropriate .py file
+# E.g. create_issue_comment -> issue_something, project_board_exists -> project_something, ...
+
+# TODO: Add caching so the app doesn't take forever!
+# (might only be possible when using a selfhosted runner)
+
 def create_issue_comment(comment_body, issue_number):
     parameters = {
         "issue_number": issue_number,
@@ -118,7 +124,7 @@ def move_project_card_column(from_column_name, to_column_name, issue_number):
     from_project_column_id = int(get_project_column(project_id=project_id, column_name=from_column_name)["id"])
     to_project_column_id = int(get_project_column(project_id=project_id, column_name=to_column_name)["id"])
     project_card_id = int(get_project_card(column_id=from_project_column_id,issue_number=issue_number)["id"])
-    
+
     project_card_moves_url = get_project_card_moves_url(project_card_id)
     parameters = {
         "column_id":to_project_column_id,
@@ -149,7 +155,7 @@ def process_issue(event_data):
     # Then create a new issue-named branch
     if "action" in event_data and event_data["action"] == "assigned":
         create_branch_from_default_branch(issue_number=issue_number, issue_title=issue_title) 
+        # TODO: Move card into 'In Progress'
 
-    
-
+    # TODO: If issue is reopned, move to Backlog
     

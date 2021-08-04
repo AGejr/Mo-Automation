@@ -1,5 +1,7 @@
 
-#def process_pr(event_data, auth_header):
+# TODO: If the PR is opened, and linked to an issue
+# then move related project card into 'In Review'
 
-    # If the event is a pr event
-    # Then make issue 'in review'
+# TODO: If the PR is closed, and linked to an issue
+# then move related project card into 'Done'
+# and delete branch

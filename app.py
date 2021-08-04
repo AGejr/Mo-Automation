@@ -2,9 +2,6 @@ import json
 from processor import issue_event_processor
 from vars.env import ENV_VAR
 
-# TODO: Make a file with enviroment variables
-# TODO: Make a predefined list API URLs 
-
 def load_event() -> json:
     print("Loading event file")
     with open(ENV_VAR.config("GITHUB_EVENT_PATH"), 'r') as json_file:
@@ -18,6 +15,8 @@ def main():
     # If the event is an issue related event
     if  "issue" in event_data:
         issue_event_processor.process_issue(event_data=event_data)
+
+    # TODO: Handle PR related event
        
 if __name__ == "__main__":
     main()
