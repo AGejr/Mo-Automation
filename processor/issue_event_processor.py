@@ -13,7 +13,7 @@ def create_issue_comment(comment_body, issue_number):
 
     print("Creating issue comment...")
     response = requests.post(url=issue_comment_url,json=parameters,headers=ENV_VAR.config("AUTH_HEADER"))
-    print(response.status_code, ": ", response.reason)
+    print(response.status_code, ":", response.reason)
     
 def create_branch_from_default_branch(issue_number, issue_title):
     branch_name = "issue-" + str(issue_number) + "-" + issue_title.replace(" ","_")
@@ -26,7 +26,7 @@ def create_branch_from_default_branch(issue_number, issue_title):
 
     print("Creating branch...")
     response = requests.post(url=refs_url, json=parameters, headers=ENV_VAR.config("AUTH_HEADER"))
-    print(response.status_code, ": ", response.reason)
+    print(response.status_code, ":", response.reason)
 
     comment_body = "Branch [" + branch_name + "](https://github.com/" + ENV_VAR.config("GITHUB_REPOSITORY_OWNER") + "/" + ENV_VAR.config("GITHUB_REPOSITORY_TITLE") + "/tree/" + branch_name + ") created!"
     create_issue_comment(comment_body=comment_body, issue_number=issue_number)
@@ -35,18 +35,16 @@ def create_branch_from_default_branch(issue_number, issue_title):
 def project_board_exists() -> bool:
     projects_url = get_projects_url()
     header = {
-        "Accept": "application/vnd.github.inertia-preview+json",
-        "Authorization":"Token " + os.getenv("GITHUB_TOKEN")
+        "Accept":"application/vnd.github.inertia-preview+json",
+        "Authorization":"Token " + ENV_VAR.config("GITHUB_TOKEN")
     }
     repo_projects = requests.get(url=projects_url,headers=header)
 
-    print(repo_projects.status_code, ": ", repo_projects.reason)
+    print(repo_projects.status_code, ":", repo_projects.reason)
     print("Response: ", repo_projects.json())
 
     for project in repo_projects.json():
-        for something in project:
-            print(something)
-        if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
+        if "name" in project and project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
     
     print("Automated project board couldn't be found")
@@ -60,17 +58,17 @@ def create_project_column(column_name, project_id):
 
     print("Creating column \"" + column_name + "\"...")
     response = requests.post(url=project_columns_url,json=parameters,headers=ENV_VAR.config("AUTH_HEADER"))
-    print(response.status_code, ": ", response.reason)
+    print(response.status_code, ":", response.reason)
 
-def initialize_project_board(repo, repo_owner, PROJECT_BOARD_NAME):
+def initialize_project_board():
     projects_url = get_projects_url()
     parameters = {
-            "name": PROJECT_BOARD_NAME,
+            "name": ENV_VAR.config("PROJECT_BOARD_NAME"),
     }
 
     print("Initializing automated project board...")
     response = requests.post(url=projects_url, json=parameters, headers=ENV_VAR.config("AUTH_HEADER"))
-    print(response.status_code, ": ", response.reason)
+    print(response.status_code, ":", response.reason)
 
     if response.status_code == 201:
         project_id = int(response["id"])
