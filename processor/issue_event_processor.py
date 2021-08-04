@@ -34,11 +34,11 @@ def project_board_exists() -> bool:
     projects_api_url = get_projects_url()
     repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
 
-    for project in repo_projects:
+    for project in repo_projects.iter_content:
         print(project)
         if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
-
+    
     print("Automated project board couldn't be found")
     return False
 
