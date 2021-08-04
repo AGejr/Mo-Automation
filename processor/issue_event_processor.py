@@ -44,6 +44,8 @@ def project_board_exists() -> bool:
     print("Response: ", repo_projects.json())
 
     for project in repo_projects:
+        for something in project:
+            print(something)
         if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
     
