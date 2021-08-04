@@ -8,12 +8,10 @@ def create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_head
     }
     url = "https://api.github.com/repos/" + repo_owner + "/" + repo + "/issues/" + str(issue_number) + "/comments"
     print("Creating issue comment...")
-    return requests.post(url=url,json=parameters,headers=auth_header)
+    comment_status = requests.post(url=url,json=parameters,headers=auth_header)
     print("Create comment status = ", comment_status)
     
 def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header):
-    # TODO: Add check to see if branch already exists
-
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
     GITHUB_SHA = os.getenv("GITHUB_SHA")
 
@@ -33,16 +31,16 @@ def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_titl
 
         print("Create branch status =",branch_status)
 
-        # TODO: remove this
-        for something in branch_status:
-            print(something)
+        if branch_status == "<Response [201]>":
+            print("Branch created!")
+        elif branch_status == "<Response [422]>":
+            print(branch_status["message"])
 
     else:
         if not GITHUB_TOKEN:
             raise Exception("ERROR: no Github token")
         elif not GITHUB_SHA:
             raise Exception("ERROR GITHUB_SHA is null")
-        #elif erroneus statuscode
 
     comment_body = "Branch [" + branch_name + "](https://github.com/" + repo_owner + "/" + repo + "/tree/" + branch_name + ") created!"
     create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_header)
