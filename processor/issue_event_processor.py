@@ -72,7 +72,7 @@ def initialize_project_board():
     print(response.status_code, ":", response.reason)
 
     if response.status_code == 201:
-        project_id = int(response["id"])
+        project_id = int(response.json()["id"])
         print("Creaing board columns...")
         create_project_column("Backlog", project_id)
         create_project_column("To Do", project_id)
