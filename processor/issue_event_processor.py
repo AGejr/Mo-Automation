@@ -35,6 +35,7 @@ def project_board_exists() -> bool:
     repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
 
     for project in repo_projects:
+        print(project)
         if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
 
