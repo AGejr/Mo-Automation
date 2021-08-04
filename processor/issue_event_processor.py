@@ -32,14 +32,13 @@ def create_branch_from_default_branch(issue_number, issue_title):
 
 # TODO: Test if the board has the appropriate columns
 def project_board_exists() -> bool:
-    projects_api_url = get_projects_url()
-    repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
+    projects_url = get_projects_url()
+    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("AUTH_HEADER"))
 
+    print(repo_projects.status_code, ": ", repo_projects.reason)
     print("Response: ", repo_projects.json())
 
     for project in repo_projects:
-        for something in project:
-            print(something)
         if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
             return True
     
