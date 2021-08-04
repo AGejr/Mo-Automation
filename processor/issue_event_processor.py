@@ -84,7 +84,7 @@ def process_issue(event_data):
 
     # If the event is an issue that has just been created, add it to the backlog in the project board
     # And if there is no project board, initialize it 
-    if "state" in event_data and event_data["state"] == "open":
+    if "state" in event_data["issue"] and event_data["issue"]["state"] == "open":
         board_exists = project_board_exists()
         if board_exists == False:
             initialize_project_board()
