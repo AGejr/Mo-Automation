@@ -7,7 +7,9 @@ def create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_head
         "body": comment_body
     }
     url = "https://api.github.com/repos/" + repo_owner + "/" + repo + "/issues/" + str(issue_number) + "/comments"
+    print("Creating issue comment...")
     return requests.post(url=url,json=parameters,headers=auth_header)
+    print("Create comment status = ", comment_status)
     
 def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header):
     # TODO: Add check to see if branch already exists
@@ -43,8 +45,7 @@ def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_titl
         #elif erroneus statuscode
 
     comment_body = "Branch [" + branch_name + "](https://github.com/" + repo_owner + "/" + repo + "/tree/" + branch_name + ") created!"
-    comment_status = create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_header)
-    print("Create comment status = ", comment_status)
+    create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_header)
     
 # TODO: def add_issue_to_board(...)
 # When a new issue is created, add it to the backlog in the Kanban board 
