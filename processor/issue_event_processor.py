@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
 
@@ -33,7 +34,11 @@ def create_branch_from_default_branch(issue_number, issue_title):
 # TODO: Test if the board has the appropriate columns
 def project_board_exists() -> bool:
     projects_url = get_projects_url()
-    repo_projects = requests.get(url=projects_url,headers=ENV_VAR.config("AUTH_HEADER"))
+    header = {
+        "Accept": "application/vnd.github.inertia-preview+json",
+        "Authorization":"Token " + os.getenv("GITHUB_TOKEN")
+    }
+    repo_projects = requests.get(url=projects_url,headers=header)
 
     print(repo_projects.status_code, ": ", repo_projects.reason)
     print("Response: ", repo_projects.json())
