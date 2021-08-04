@@ -29,7 +29,11 @@ def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_titl
 
         branch_status = requests.post(url=url, json=parameters, headers=auth_header)
 
-        print("Create branch status (keys, test feature) =",branch_status.keys()) # TODO: remove testfeature
+        print("Create branch status =",branch_status)
+
+        # TODO: remove this
+        for something in branch_status:
+            print(something)
 
     else:
         if not GITHUB_TOKEN:
