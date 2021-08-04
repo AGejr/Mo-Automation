@@ -7,7 +7,7 @@ from vars.env import ENV_VAR
 
 def load_event() -> json:
     print("Loading event file")
-    with open(ENV_VAR.config["GITHUB_EVENT_PATH"], 'r') as json_file:
+    with open(ENV_VAR.config("GITHUB_EVENT_PATH"), 'r') as json_file:
         event_data = json.load(json_file)
         print("Event data = ", event_data)
         return event_data
