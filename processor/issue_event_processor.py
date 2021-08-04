@@ -1,65 +1,96 @@
 import os
 import requests
+from requests.api import request
+from ..vars.env import ENV_VAR
+from ..vars.github_api_url_getter import *
 
-def create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_header):
+def create_issue_comment(comment_body, issue_number):
     parameters = {
         "issue_number": issue_number,
         "body": comment_body
     }
-    url = "https://api.github.com/repos/" + repo_owner + "/" + repo + "/issues/" + str(issue_number) + "/comments"
+    issue_comment_url = get_issue_comment_url(issue_number=issue_number)
+
     print("Creating issue comment...")
-    comment_status = requests.post(url=url,json=parameters,headers=auth_header)
-    print("Create comment status = ", comment_status)
+    response = requests.post(url=issue_comment_url,json=parameters,headers=ENV_VAR.config("AUTH_HEADER"))
+    print(response.status_code, ": ", response.reason)
     
-def create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header):
-    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    GITHUB_SHA = os.getenv("GITHUB_SHA")
-
+def create_branch_from_default_branch(issue_number, issue_title):
     branch_name = "issue-" + str(issue_number) + "-" + issue_title.replace(" ","_")
+    ref = "refs/heads/" + branch_name
+    refs_url = get_refs_url()
+    parameters = {
+        "ref": ref,
+        "sha": ENV_VAR.config("GITHUB_SHA")
+    }
 
-    if GITHUB_TOKEN and GITHUB_SHA:
-        ref = "refs/heads/" + branch_name
-        url = "https://api.github.com/" + "repos/" + repo_owner + "/" + repo + "/git/refs"
-        parameters = {
-            "ref": ref,
-            "sha": GITHUB_SHA
-        }
+    print("Creating branch...")
+    response = requests.post(url=refs_url, json=parameters, headers=ENV_VAR.config("AUTH_HEADER"))
+    print(response.status_code, ": ", response.reason)
 
-        print("Creating branch...")
+    comment_body = "Branch [" + branch_name + "](https://github.com/" + ENV_VAR.config("GITHUB_REPOSITORY_OWNER") + "/" + ENV_VAR.config("GITHUB_REPOSITORY_TITLE") + "/tree/" + branch_name + ") created!"
+    create_issue_comment(comment_body=comment_body, issue_number=issue_number)
 
-        branch_status = requests.post(url=url, json=parameters, headers=auth_header)
+# TODO: Test if the board has the appropriate columns
+def project_board_exists() -> bool:
+    projects_api_url = get_projects_url()
+    repo_projects = requests.get(url=projects_api_url,headers=ENV_VAR.config("AUTH_HEADER"))
 
-        print("Create branch status =",branch_status)
+    for project in repo_projects:
+        if project["name"] == ENV_VAR.config("PROJECT_BOARD_NAME"):
+            return True
 
-        if branch_status == "<Response [201]>":
-            print("Branch created!")
-        elif branch_status == "<Response [422]>":
-            print(branch_status["message"])
+    print("Automated project board couldn't be found")
+    return False
 
-    else:
-        if not GITHUB_TOKEN:
-            raise Exception("ERROR: no Github token")
-        elif not GITHUB_SHA:
-            raise Exception("ERROR GITHUB_SHA is null")
+def create_project_column(column_name, project_id):
+    project_columns_url = get_project_columns_url(project_id=project_id)
+    parameters = {
+        "name": column_name
+    }
 
-    comment_body = "Branch [" + branch_name + "](https://github.com/" + repo_owner + "/" + repo + "/tree/" + branch_name + ") created!"
-    create_issue_comment(comment_body, repo, repo_owner, issue_number, auth_header)
-    
-# TODO: def add_issue_to_board(...)
-# When a new issue is created, add it to the backlog in the Kanban board 
+    print("Creating column \"" + column_name + "\"...")
+    response = requests.post(url=project_columns_url,json=parameters,headers=ENV_VAR.config("AUTH_HEADER"))
+    print(response.status_code, ": ", response.reason)
 
-def process_issue(event_data, auth_header):
-    repo_owner = event_data["repository"]["owner"]["login"]
-    repo = event_data["repository"]["name"]
+def initialize_project_board(repo, repo_owner, PROJECT_BOARD_NAME):
+    projects_url = get_projects_url()
+    parameters = {
+            "name": PROJECT_BOARD_NAME,
+    }
+
+    print("Initializing automated project board...")
+    response = requests.post(url=projects_url, json=parameters, headers=ENV_VAR.config("AUTH_HEADER"))
+    print(response.status_code, ": ", response.reason)
+
+    if response.status_code == 201:
+        project_id = int(response["id"])
+        print("Creaing board columns...")
+        create_project_column("Backlog", project_id)
+        create_project_column("To Do", project_id)
+        create_project_column("In Progress", project_id)
+        create_project_column("In Review", project_id)
+        create_project_column("Done", project_id)
+
+def add_issue_to_board_backlog():
+    print("*Should create branch*")    
+
+def process_issue(event_data):
     issue_number = event_data["issue"]["number"]
     issue_title = event_data["issue"]["title"]
 
     # If the event is an issue event where someone has been assigned
     # Then create a new issue-named branch
-    if event_data["action"] == "assigned":
-        
-        create_branch_from_default_branch(repo_owner, repo, issue_number, issue_title, auth_header) 
+    if "action" in event_data and event_data["action"] == "assigned":
+        create_branch_from_default_branch(issue_number=issue_number, issue_title=issue_title) 
 
-    # TODO: If the event is an issue that has just been created call add_issue_to_board 
+    # If the event is an issue that has just been created, add it to the backlog in the project board
+    # And if there is no project board, initialize it 
+    if "state" in event_data and event_data["state"] == "opened":
+        board_exists = project_board_exists()
+        if board_exists == False:
+            initialize_project_board()
+        
+        add_issue_to_board_backlog()
 
     
