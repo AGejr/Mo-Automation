@@ -12,6 +12,8 @@ def load_event() -> json:
 def main():
     event_data = load_event()
     
+    print(event_data)
+
     # If the event is an issue related event
     if  "issue" in event_data:
         issue_event_processor.process_issue(event_data=event_data)
