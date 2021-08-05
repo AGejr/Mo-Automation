@@ -3,9 +3,9 @@ from requests.models import Response
 
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
-from github_api_wrappers.issue import *
-from github_api_wrappers.project import *
-from github_api_wrappers.git_database import *
+from processor.github_api_wrappers.issue import *
+from processor.github_api_wrappers.project import *
+from processor.github_api_wrappers.git_database import *
 
 # TODO: Cleanup! move ever function, except for process_issue, into appropriate .py file
 # E.g. create_issue_comment -> issue_something, project_board_exists -> project_something, ...
