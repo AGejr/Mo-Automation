@@ -9,6 +9,4 @@ COPY vars /app/vars
 
 RUN pip3 install -r /app/requirements.txt
 
-CMD [ "pylint", "/app/app.py"]
-
 CMD [ "python3", "/app/app.py"]
