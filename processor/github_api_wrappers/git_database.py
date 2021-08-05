@@ -1,8 +1,9 @@
 import requests
 from vars.env import ENV_VAR
 from vars.github_api_url_getter import *
+from processor.github_api_wrappers.issue import *
 
-from issue import *
+# References
 
 def create_branch_from_default_branch(issue_number, issue_title):
     branch_name = "issue-" + str(issue_number) + "-" + issue_title.replace(" ","_")
