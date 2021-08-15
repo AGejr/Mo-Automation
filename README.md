@@ -78,13 +78,13 @@ jobs:
 
 ### Project board name
 
-The project board name can be configures to your liking by changing the PROJECT_BOARD_NAME property in the mo-automation.yml file.
+The project board name can be configured to your liking by changing the PROJECT_BOARD_NAME property in the mo-automation.yml file.
 
 ## Planned features
 
 ### Finish main functionality
 
-The rest of the main functionality should be implemented. In in continuation of that, the app should be released to Github marketplace.
+The rest of the main functionality should be implemented. In continuation of that, the app should be released to Github marketplace.
 
 ### Testing
 
